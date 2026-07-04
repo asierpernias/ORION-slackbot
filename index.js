@@ -33,7 +33,7 @@ function ObtenerConstelacioneEnCenit(lat, lon, fecha = new Date()) {
 
 app.command("/orion-help", async ({command, ack, respond}) => {
   await ack();
-  await respond({text: `Commands: \n· /orion-ping \n ·/orion-cielo {City}`})
+  await respond({text: `Commands: \n· /orion-ping \n ·/orion-cielo {City}\n·/orion-cielo {Constelacion}`})
 });
 
 const axios = require("axios");
