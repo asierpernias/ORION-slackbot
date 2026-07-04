@@ -33,7 +33,7 @@ function ObtenerConstelacioneEnCenit(lat, lon, fecha = new Date()) {
 
 app.command("/orion-help", async ({command, ack, respond}) => {
   await ack();
-  await respond({text: `Commands: \n /orion-ping`})
+  await respond({text: `Commands: \n· /orion-ping \n ·/orion-cielo {City}`})
 });
 
 const axios = require("axios");
@@ -86,6 +86,47 @@ app.command("/orion-cielo", async ({command, ack, respond})  => {
 
     await respond({
       text: "No se pudo obtener la carta del cielo."
+    });
+  }
+});
+
+async function obtenerInfoConstell(nombre) {
+  const {data} = await axios.get(
+    `https://es.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(nombre)}`,
+    {
+      headers:  {
+        "User-Agent": "ORIONSlackBot/1.0 (asier.pernias@gmail.com)",
+      },
+    }
+  );
+
+  return {
+    titulo: data.title,
+    extracto: data.extract,
+    url: data.content_urls?.desktop?.page,
+  };
+}
+
+app.command("/orion-info", async ({command, ack, respond}) => {
+  await ack();
+
+  try {
+    const constelacion = command.text.trim();
+
+    if (!constelacion) {
+      return respond("Debes escribir el nombre de una constelacion, ej: /orion-info Orion");
+    }
+
+    const info = await obtenerInfoConstell(constelacion);
+
+    await respond({
+      text: `🌠 *${info.titulo}* \n${info.extracto}\n${info.url ?? ""}`,
+    });
+  } catch (err) {
+    console.error(err);
+
+    await respond({
+      text: `No encontre informacion sobre ${command.text}.`
     });
   }
 });
